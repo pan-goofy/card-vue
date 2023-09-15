@@ -1,0 +1,46 @@
+{
+    "manifest_version":3, 
+    "name": "adel-card",
+    "version":"1.0",
+    "description":"adel-card-插件",
+    "icons": {
+        "16":  "assets/logo.png",
+        "48":  "assets/logo.png",
+        "128":  "assets/logo.png"
+      },
+    "action": {
+        "default_icon": {
+          "19": "assets/logo.png",
+          "38": "assets/logo.png"
+        },
+        "default_popup": "popup.html",
+        "default_title": "hello-world-plugin"
+      },
+    "background": {
+        "service_worker": "js/background.js"
+      },
+      "content_scripts": [
+        {
+         "matches": ["http://*/*", "https://*/*"],
+         "css": [
+          "css/chunk-vendors.css"
+         ],
+            "js": ["js/chunk-vendors.js"],  
+         "run_at": "document_idle"
+        }
+       ],
+  
+      "permissions": [
+        "contextMenus",
+        "tabs",
+        "notifications",
+        "webRequest",
+        "storage"
+      ],
+        "host_permissions": ["http://*/*", "https://*/*"],
+ 
+
+      "content_security_policy": {
+         "extension_pages": "script-src 'self'; object-src 'self'"
+      }
+}
