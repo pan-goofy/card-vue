@@ -17,12 +17,23 @@
       </div>
       <div class="text">
       <el-date-picker
-        v-model="value1"
+        v-model="startDate"
         type="datetime"
         placeholder="开始时间"
         :size="size"
       />
     </div>
+    </div>
+
+    <div class="item">
+      <div class="title">
+        <el-text class="mx-1" type="info">楼层</el-text>
+      </div>
+      <div class="text">
+        <el-checkbox v-model="checked1" label="2F" size="large" />
+        <el-checkbox v-model="checked2" label="3F" size="large" />
+        <el-checkbox v-model="checked3" label="5F" size="large" />
+      </div>
     </div>
 
 
@@ -32,7 +43,7 @@
       </div>
       <div class="text">
       <el-date-picker
-        v-model="value2"
+        v-model="endDate"
         type="datetime"
         placeholder="离开时间"
         :size="size"
@@ -41,9 +52,18 @@
     </div>
 
     <div class="item">
-      <el-button type="primary">制作房卡</el-button>
-      <el-button type="success">读取房卡</el-button>
-      <el-button type="danger">清空房卡</el-button>
+      <div class="title">
+        <el-text class="mx-1" type="info">卡号</el-text>
+      </div>
+      <div class="text">
+        <el-input v-model="cardNo"  placeholder="" />
+      </div>
+    </div>
+
+    <div class="item">
+      <el-button type="primary" @click="writeCard">制作房卡</el-button>
+      <el-button type="success" @click="readCard">读取房卡</el-button>
+      <el-button type="danger" @click="clearCard">清空房卡</el-button>
     </div>
      
  
@@ -52,17 +72,135 @@
   
   <script setup>
  
- import { ref } from 'vue'
+ import { ref ,onMounted} from 'vue'
+ import { ElMessage } from 'element-plus'
+ import { getDate ,setDate} from '../../utils/index.js'
+ const socket = ref(null);
+
+ const checked1 = ref(false);
+ const checked2 = ref(false);
+ const checked3 = ref(false);
+
+ const msg = ref("")
+ const roomName =  ref("")
+ const cardNo = ref("")
+
+ //const messages = ref([]);
+ //组件加载连接socket
 
 const size = ref<'default' | 'large' | 'small'>('default')
 
-const roomName =  ref('8201')
 
-const value1 = ref('')
-const value2 = ref('')
+
+// 获取当前日期
+var today = new Date();
+// 设置时间为明天
+today.setDate(today.getDate() + 1);
+// 设置时间为 14 点
+today.setHours(14, 0, 0, 0);
+const startDate = ref(new Date())
+const endDate =  ref(today)
+
+
+onMounted(()=>{
+  socket.value = new WebSocket("ws://192.168.10.113:8989/websockets");
+
+  socket.value.onmessage = function (event) {
+
+    const datas = JSON.parse(event.data)
+
+    if(datas.type== "writeCard"){
+      if(datas.status==0){
+        ElMessage({
+          message: '写入成功',
+          type: 'success',
+          })
+      }
+    }
+
+    if(datas.type== "clearCard"){
+      if(datas.status==0){
+        ElMessage({
+          message: '清卡成功',
+          type: 'success',
+          })
+      }
+    }
+    
+    if(datas.type == 'readCard'){
+      console.log("读取卡片",datas)
+
+      if(datas.status == 0){
+        roomName.value = datas.data.room
+        startDate.value = getDate(datas.data.startDate)
+        endDate.value = getDate(datas.data.endDate)
+        cardNo.value = datas.data.cardno
+        ElMessage({
+          message: '读取成功',
+          type: 'success',
+          })
+      }
+      if(datas.status ==7){
+        ElMessage({
+          message: '房卡为空',
+          type: 'success',
+          })
+      }
+   
+    }
+     
+  }
+ })
 
 const changeRoomName = (value)=>{
   console.log("房间号",value)
+}
+
+const  sendSocket = (msg)=>{
+  socket.value.send(JSON.stringify(msg.value))
+}
+
+const readCard = ()=>{
+  msg.value = {
+      "action":"readCard",
+  }
+    sendSocket(msg)
+}
+
+const clearCard = ()=>{
+  msg.value = {
+          "action":"clearCard",
+          "cardNo" :cardNo.value  //清除卡号id
+      }
+  sendSocket(msg)
+}
+
+const writeCard = ()=>{
+
+  const floors = []
+  if(checked1.value ==true){
+    floors.push(1)
+  }
+
+  if(checked2.value ==true){
+    floors.push(2)
+  }
+  if(checked3.value ==true){
+    floors.push(3)
+  }
+  
+  msg.value = {
+          "action":"writeCard",
+          "room":roomName.value,
+          "cardNo":"",  //卡id 
+          "overflag":1,  //是否覆盖
+          "lift": floors.join(","),    //电梯楼层 1楼,2楼
+          "guestName":'访客',   //名称 非必填
+          "guestId" : "",
+          "startDate" : setDate(startDate.value), //开始时间
+          "endDate" : setDate(endDate.value) //结束时间
+    }
+    sendSocket(msg)
 }
 
 // const shortcuts = [
