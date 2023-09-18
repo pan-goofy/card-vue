@@ -154,7 +154,7 @@ onMounted(()=>{
 
 const changeRoomName = (value)=>{
   console.log("房间号",value)
-  console.log("value",value.length)
+  //console.log("value",value.length)
   if(value.length ==2){
     console.log("房间号",value%10)
     if(value%10==2){
