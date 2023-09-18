@@ -7,7 +7,7 @@
         <el-text class="mx-1" type="info">房间号</el-text>
       </div>
       <div class="text">
-        <el-input v-model="roomName" @change="changeRoomName" placeholder="请输入房间号" />
+        <el-input v-model="roomName" @input="changeRoomName" placeholder="请输入房间号" />
       </div>
     </div>
 
@@ -30,9 +30,9 @@
         <el-text class="mx-1" type="info">楼层</el-text>
       </div>
       <div class="text">
-        <el-checkbox v-model="checked1" label="2F" size="large" />
-        <el-checkbox v-model="checked2" label="3F" size="large" />
-        <el-checkbox v-model="checked3" label="5F" size="large" />
+        <el-checkbox v-model="state.checked1" label="2F" size="large" />
+        <el-checkbox v-model="state.checked2" label="3F" size="large" />
+        <el-checkbox v-model="state.checked3" label="5F" size="large" />
       </div>
     </div>
 
@@ -72,19 +72,19 @@
   
   <script setup>
  
- import { ref ,onMounted} from 'vue'
+ import { ref ,onMounted ,reactive } from 'vue'
  import { ElMessage } from 'element-plus'
  import { getDate ,setDate} from '../../utils/index.js'
  const socket = ref(null);
-
- const checked1 = ref(false);
- const checked2 = ref(false);
- const checked3 = ref(false);
-
+ 
+ const state = reactive({
+  checked1: false,
+  checked2: false,
+  checked3: false,
+})
  const msg = ref("")
  const roomName =  ref("")
  const cardNo = ref("")
-
  //const messages = ref([]);
  //组件加载连接socket
 
@@ -154,6 +154,21 @@ onMounted(()=>{
 
 const changeRoomName = (value)=>{
   console.log("房间号",value)
+  console.log("value",value.length)
+  if(value.length ==2){
+    console.log("房间号",value%10)
+    if(value%10==2){
+      console.log("选中2")
+      state.checked1 = true
+    }
+    if(value%10==3){
+      state.checked2 = true
+    }
+    if(value%10==5){
+      state.checked3 = true
+    }
+  }
+  
 }
 
 const  sendSocket = (msg)=>{
@@ -178,14 +193,14 @@ const clearCard = ()=>{
 const writeCard = ()=>{
 
   const floors = []
-  if(checked1.value ==true){
+  if(state.checked1 ==true){
     floors.push(1)
   }
 
-  if(checked2.value ==true){
+  if(state.checked2 ==true){
     floors.push(2)
   }
-  if(checked3.value ==true){
+  if(state.checked3 ==true){
     floors.push(3)
   }
   
