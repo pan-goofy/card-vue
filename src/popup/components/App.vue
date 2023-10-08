@@ -30,9 +30,9 @@
         <el-text class="mx-1" type="info">楼层</el-text>
       </div>
       <div class="text">
-        <el-checkbox v-model="checked1" label="2F" size="large" />
-        <el-checkbox v-model="checked2" label="3F" size="large" />
-        <el-checkbox v-model="checked3" label="5F" size="large" />
+        <el-checkbox v-model="state.checked1" label="2F" size="large" />
+        <el-checkbox v-model="state.checked2" label="3F" size="large" />
+        <el-checkbox v-model="state.checked3" label="5F" size="large" />
       </div>
     </div>
 
@@ -72,19 +72,19 @@
   
   <script setup>
  
- import { ref ,onMounted} from 'vue'
+ import { ref ,onMounted ,reactive } from 'vue'
  import { ElMessage } from 'element-plus'
  import { getDate ,setDate} from '../../utils/index.js'
  const socket = ref(null);
-
- const checked1 = ref(false);
- const checked2 = ref(false);
- const checked3 = ref(false);
-
+ 
+ const state = reactive({
+  checked1: false,
+  checked2: false,
+  checked3: false,
+})
  const msg = ref("")
  const roomName =  ref("")
  const cardNo = ref("")
-
  //const messages = ref([]);
  //组件加载连接socket
 
@@ -179,6 +179,7 @@ onMounted(()=>{
     }
     if(value%10==5){
       checked3.value = true
+ 
     }
   }
   
@@ -206,14 +207,14 @@ const clearCard = ()=>{
 const writeCard = ()=>{
 
   const floors = []
-  if(checked1.value ==true){
+  if(state.checked1 ==true){
     floors.push(1)
   }
 
-  if(checked2.value ==true){
+  if(state.checked2 ==true){
     floors.push(2)
   }
-  if(checked3.value ==true){
+  if(state.checked3 ==true){
     floors.push(3)
   }
   
