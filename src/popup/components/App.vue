@@ -7,7 +7,7 @@
         <el-text class="mx-1" type="info">房间号</el-text>
       </div>
       <div class="text">
-        <el-input v-model="roomName" @change="changeRoomName" placeholder="请输入房间号" />
+        <el-input v-model="roomName" @input="changeRoomName" placeholder="请输入房间号" />
       </div>
     </div>
 
