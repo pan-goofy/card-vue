@@ -74,7 +74,7 @@
  
  import { ref ,onMounted ,reactive } from 'vue'
  import { ElMessage } from 'element-plus'
- import { getDate ,setDate} from '../../utils/index.js'
+ import { getDate ,setDate ,getMsg} from '../../utils/index.js'
  const socket = ref(null);
  
  const state = reactive({
@@ -108,6 +108,13 @@ onMounted(()=>{
   socket.value.onmessage = function (event) {
 
     const datas = JSON.parse(event.data)
+
+    if(datas.status!=0){
+        ElMessage({
+          message: getMsg(datas.status),
+          type: 'error',
+          }) 
+    }
 
     if(datas.type== "writeCard"){
       if(datas.status==0){
