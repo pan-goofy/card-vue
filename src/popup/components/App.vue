@@ -114,6 +114,7 @@ onMounted(()=>{
           message: getMsg(datas.status),
           type: 'error',
           }) 
+        return
     }
 
     if(datas.type== "writeCard"){
@@ -138,35 +139,28 @@ onMounted(()=>{
       console.log("读取卡片",datas)
 
       if(datas.status == 0){
-        checked1.value =false
-        checked2.value =false
-        checked3.value =false
+        state.checked1 =false
+        state.checked2 =false
+        state.checked3 =false
         roomName.value = datas.data.room
         startDate.value = getDate(datas.data.startDate)
         endDate.value = getDate(datas.data.endDate)
         cardNo.value = datas.data.cardno
         const lifts = datas.data.lift.split(",")
         if(lifts.includes("1")){
-          checked1.value =true
+          state.checked1 =true
         }
         if(lifts.includes("2")){
-          checked2.value =true
+          state.checked2 =true
         }
         if(lifts.includes("3")){
-          checked3.value =true
+          state.checked3 =true
         }
         ElMessage({
           message: '读取成功',
           type: 'success',
           })
       }
-      if(datas.status ==7){
-        ElMessage({
-          message: '房卡为空',
-          type: 'success',
-          })
-      }
-   
     }
      
   }
@@ -179,13 +173,13 @@ onMounted(()=>{
     console.log("房间号",value%10)
     if(value%10==2){
       console.log("选中2")
-      checked1.value = true
+      state.checked1 = true
     }
     if(value%10==3){
-      checked2.value = true
+      state.checked2 = true
     }
     if(value%10==5){
-      checked3.value = true
+      state.checked3 = true
  
     }
   }
